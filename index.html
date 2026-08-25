@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>CodeTrack</title>
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <main class="container">
+
+    <h1>CodeTrack</h1>
+    <p>Organize seus estudos de programação.</p>
+
+    <section class="stats">
+      <h2>Nível 1</h2>
+      <p>XP: 0</p>
+    </section>
+
+    <section class="task-form">
+
+      <h2>Adicionar tarefa</h2>
+
+      <input
+        type="text"
+        id="technology"
+        placeholder="Tecnologia: JavaScript"
+      >
+
+      <input
+        type="text"
+        id="task"
+        placeholder="Tarefa: Estudar arrays"
+      >
+
+      <button id="addTask">
+        Adicionar
+      </button>
+
+    </section>
+
+    <section>
+
+      <h2>Minhas tarefas</h2>
+
+      <ul id="taskList"></ul>
+
+    </section>
+
+  </main>
+
+  <script src="js/app.js"></script>
+
+</body>
+</html>
