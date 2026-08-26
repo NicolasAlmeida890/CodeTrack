@@ -3,7 +3,7 @@ const taskInput = document.querySelector("#task");
 const addTaskButton = document.querySelector("#addTask");
 const taskList = document.querySelector("#taskList");
 
-let tasks = [];
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 function addTask() {
   const technology = technologyInput.value;
@@ -23,6 +23,7 @@ function addTask() {
 
   tasks.push(newTask);
 
+  saveTasks();
   renderTasks();
 
   technologyInput.value = "";
@@ -69,6 +70,7 @@ function toggleTask(id) {
 
   task.completed = !task.completed;
 
+  saveTasks();
   renderTasks();
 }
 
@@ -77,7 +79,14 @@ function deleteTask(id) {
     return task.id !== id;
   });
 
+  saveTasks();
   renderTasks();
 }
 
+function saveTasks() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
 addTaskButton.addEventListener("click", addTask);
+
+renderTasks();
