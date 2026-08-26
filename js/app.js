@@ -3,6 +3,13 @@ const taskInput = document.querySelector("#task");
 const addTaskButton = document.querySelector("#addTask");
 const taskList = document.querySelector("#taskList");
 
+
+const levelElement = document.querySelector("#level");
+const xpElement = document.querySelector("#xp");
+const xpBar = document.querySelector("#xpBar");
+
+
+
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 function addTask() {
@@ -61,6 +68,8 @@ function renderTasks() {
 
     taskList.appendChild(li);
   });
+
+  updateStats();
 }
 
 function toggleTask(id) {
@@ -90,3 +99,21 @@ function saveTasks() {
 addTaskButton.addEventListener("click", addTask);
 
 renderTasks();
+
+function updateStats() {
+  const completedTasks = tasks.filter(function(task) {
+    return task.completed;
+  });
+
+  const xp = completedTasks.length * 20;
+
+  const level = Math.floor(xp / 100) + 1;
+
+  const xpCurrentLevel = xp % 100;
+
+  levelElement.textContent = `Nível ${level}`;
+
+  xpElement.textContent = `${xpCurrentLevel} / 100 XP`;
+
+  xpBar.style.width = `${xpCurrentLevel}%`;
+}
