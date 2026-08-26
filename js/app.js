@@ -37,13 +37,47 @@ function renderTasks() {
 
     li.classList.add("task-item");
 
+    if (task.completed) {
+      li.classList.add("completed");
+    }
+
     li.innerHTML = `
-      <strong>${task.name}</strong>
-      <p>${task.technology}</p>
+      <div>
+        <strong>${task.name}</strong>
+        <p>${task.technology}</p>
+      </div>
+
+      <div>
+        <button onclick="toggleTask(${task.id})">
+          ${task.completed ? "Desfazer" : "Concluir"}
+        </button>
+
+        <button onclick="deleteTask(${task.id})">
+          Excluir
+        </button>
+      </div>
     `;
 
     taskList.appendChild(li);
   });
+}
+
+function toggleTask(id) {
+  const task = tasks.find(function(task) {
+    return task.id === id;
+  });
+
+  task.completed = !task.completed;
+
+  renderTasks();
+}
+
+function deleteTask(id) {
+  tasks = tasks.filter(function(task) {
+    return task.id !== id;
+  });
+
+  renderTasks();
 }
 
 addTaskButton.addEventListener("click", addTask);

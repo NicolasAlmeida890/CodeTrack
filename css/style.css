@@ -48,3 +48,18 @@ button {
   margin-bottom: 10px;
   border-radius: 8px;
 }
+
+.task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.completed strong {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.task-item button {
+  margin-left: 5px;
+}
