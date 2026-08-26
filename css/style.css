@@ -78,3 +78,34 @@ button {
   background: #4caf50;
   transition: width 0.3s ease;
 }
+
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.stat-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-card h3 {
+  margin-top: 0;
+  font-size: 14px;
+}
+
+.stat-card p {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 0;
+}
+
+@media (max-width: 600px) {
+  .dashboard {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

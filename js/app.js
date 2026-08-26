@@ -9,6 +9,11 @@ const xpElement = document.querySelector("#xp");
 const xpBar = document.querySelector("#xpBar");
 
 
+const totalTasksElement = document.querySelector("#totalTasks");
+const completedTasksElement = document.querySelector("#completedTasks");
+const pendingTasksElement = document.querySelector("#pendingTasks");
+const progressPercentageElement = document.querySelector("#progressPercentage");
+
 
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
@@ -116,4 +121,27 @@ function updateStats() {
   xpElement.textContent = `${xpCurrentLevel} / 100 XP`;
 
   xpBar.style.width = `${xpCurrentLevel}%`;
+}
+
+function updateDashboard() {
+  const totalTasks = tasks.length;
+
+  const completedTasks = tasks.filter(function(task) {
+    return task.completed;
+  }).length;
+
+  const pendingTasks = totalTasks - completedTasks;
+
+  let progressPercentage = 0;
+
+  if (totalTasks > 0) {
+    progressPercentage = Math.round(
+      (completedTasks / totalTasks) * 100
+    );
+  }
+
+  totalTasksElement.textContent = totalTasks;
+  completedTasksElement.textContent = completedTasks;
+  pendingTasksElement.textContent = pendingTasks;
+  progressPercentageElement.textContent = `${progressPercentage}%`;
 }
