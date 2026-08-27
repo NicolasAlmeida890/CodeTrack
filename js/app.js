@@ -240,9 +240,16 @@ function editTask(id) {
     return;
   }
 
-  const priority = newPriority
-    .toLowerCase()
-    .trim();
+  const newDueDate = prompt(
+    "Digite o novo prazo no formato AAAA-MM-DD:",
+    task.dueDate || ""
+  );
+
+  if (newDueDate === null) {
+    return;
+  }
+
+  const priority = newPriority.toLowerCase().trim();
 
   if (
     newName.trim() === "" ||
@@ -264,6 +271,7 @@ function editTask(id) {
   task.name = newName.trim();
   task.technology = newTechnology.trim();
   task.priority = priority;
+  task.dueDate = newDueDate.trim();
 
   saveTasks();
   renderTasks();
