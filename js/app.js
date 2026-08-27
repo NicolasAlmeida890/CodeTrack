@@ -16,6 +16,8 @@ const filterButtons = document.querySelectorAll(".filter-btn");
 
 const searchInput = document.querySelector("#searchTask");
 
+const priorityInput = document.querySelector("#priority");
+
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 let currentFilter = "all";
@@ -24,6 +26,7 @@ let currentFilter = "all";
 function addTask() {
   const technology = technologyInput.value.trim();
   const taskName = taskInput.value.trim();
+  const priority = priorityInput.value;
 
   if (technology === "" || taskName === "") {
     alert("Preencha todos os campos.");
@@ -34,6 +37,7 @@ function addTask() {
     id: Date.now(),
     technology: technology,
     name: taskName,
+    priority: priority,
     completed: false
   };
 
@@ -84,10 +88,26 @@ function renderTasks() {
       li.classList.add("completed");
     }
 
+    const priority = task.priority || "medium";
+
+    let priorityText = "Média";
+
+    if (priority === "low") {
+      priorityText = "Baixa";
+    }
+
+    if (priority === "high") {
+      priorityText = "Alta";
+    }
+
     li.innerHTML = `
       <div>
         <strong>${task.name}</strong>
         <p>${task.technology}</p>
+
+        <span class="priority ${priority}">
+          ${priorityText}
+        </span>
       </div>
 
       <div>

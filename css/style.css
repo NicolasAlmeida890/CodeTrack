@@ -135,3 +135,29 @@ button {
   border: 1px solid #ccc;
   border-radius: 6px;
 }
+
+#priority {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.priority {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.priority.low {
+  background: #d4edda;
+}
+
+.priority.medium {
+  background: #fff3cd;
+}
+
+.priority.high {
+  background: #f8d7da;
+}
