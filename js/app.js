@@ -192,13 +192,36 @@ function editTask(id) {
     return;
   }
 
+  const currentPriority = task.priority || "medium";
+
+  const newPriority = prompt(
+    "Digite a prioridade: low, medium ou high",
+    currentPriority
+  );
+
+  if (newPriority === null) {
+    return;
+  }
+
+  const priority = newPriority.toLowerCase().trim();
+
   if (newName.trim() === "" || newTechnology.trim() === "") {
     alert("Os campos não podem ficar vazios.");
     return;
   }
 
+  if (
+    priority !== "low" &&
+    priority !== "medium" &&
+    priority !== "high"
+  ) {
+    alert("Prioridade inválida. Use low, medium ou high.");
+    return;
+  }
+
   task.name = newName.trim();
   task.technology = newTechnology.trim();
+  task.priority = priority;
 
   saveTasks();
   renderTasks();
