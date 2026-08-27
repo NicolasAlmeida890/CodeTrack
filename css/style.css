@@ -1,170 +1,390 @@
+/* =========================
+   CONFIGURAÇÕES GERAIS
+========================= */
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f4f4f4;
+  font-family: Arial, Helvetica, sans-serif;
+
+  background: #f3f4f6;
+  color: #1f2937;
 }
 
 .container {
-  max-width: 700px;
+  width: 90%;
+  max-width: 900px;
+
   margin: 50px auto;
-  padding: 20px;
 }
 
-h1 {
+
+/* =========================
+   TÍTULO
+========================= */
+
+.container > h1 {
   margin-bottom: 5px;
+  font-size: 36px;
 }
 
-.stats,
-.task-form {
+.container > p {
+  margin-top: 0;
+  color: #6b7280;
+}
+
+
+/* =========================
+   XP E NÍVEL
+========================= */
+
+.stats {
   background: white;
-  padding: 20px;
-  margin-top: 20px;
-  border-radius: 8px;
+
+  padding: 25px;
+  margin-top: 30px;
+
+  border-radius: 12px;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
-.task-form input {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 10px;
+.stats h2 {
+  margin-top: 0;
 }
 
-button {
-  padding: 10px 16px;
-  cursor: pointer;
-}
 
-#taskList {
-  padding: 0;
-}
-
-.task-item {
-  list-style: none;
-  background: white;
-  padding: 15px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-}
-
-.task-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.completed strong {
-  text-decoration: line-through;
-  opacity: 0.5;
-}
-
-.task-item button {
-  margin-left: 5px;
-}
+/* =========================
+   BARRA DE XP
+========================= */
 
 .progress-bar {
   width: 100%;
   height: 12px;
-  background: #ddd;
-  border-radius: 10px;
+
+  background: #e5e7eb;
+
+  border-radius: 20px;
   overflow: hidden;
 }
 
 .progress {
   width: 0%;
   height: 100%;
-  background: #4caf50;
+
+  background: #22c55e;
+
+  border-radius: 20px;
+
   transition: width 0.3s ease;
 }
 
+
+/* =========================
+   DASHBOARD
+========================= */
+
 .dashboard {
   display: grid;
+
   grid-template-columns: repeat(4, 1fr);
+
   gap: 15px;
+
   margin-top: 20px;
 }
 
 .stat-card {
   background: white;
+
   padding: 20px;
-  border-radius: 8px;
+
+  border-radius: 12px;
+
   text-align: center;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .stat-card h3 {
-  margin-top: 0;
+  margin: 0;
+
   font-size: 14px;
+
+  color: #6b7280;
 }
 
 .stat-card p {
-  font-size: 24px;
+  margin: 10px 0 0;
+
+  font-size: 28px;
+
   font-weight: bold;
-  margin-bottom: 0;
 }
 
-@media (max-width: 600px) {
-  .dashboard {
-    grid-template-columns: repeat(2, 1fr);
-  }
+
+/* =========================
+   FORMULÁRIO
+========================= */
+
+.task-form {
+  background: white;
+
+  padding: 25px;
+
+  margin-top: 20px;
+
+  border-radius: 12px;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
+
+.task-form h2 {
+  margin-top: 0;
+}
+
+.task-form input,
+.task-form select {
+  width: 100%;
+
+  padding: 12px;
+
+  margin-bottom: 12px;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 8px;
+
+  font-size: 14px;
+}
+
+.task-form input:focus,
+.task-form select:focus,
+#searchTask:focus,
+#sortTasks:focus {
+  outline: none;
+
+  border-color: #6366f1;
+}
+
+
+/* =========================
+   BOTÕES
+========================= */
+
+button {
+  padding: 10px 15px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  font-weight: bold;
+
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+#addTask {
+  width: 100%;
+
+  background: #4f46e5;
+  color: white;
+}
+
+#addTask:hover {
+  background: #4338ca;
+}
+
+
+/* =========================
+   ÁREA DAS TAREFAS
+========================= */
+
+section:last-child {
+  margin-top: 30px;
+}
+
+#taskList {
+  padding: 0;
+  margin-top: 15px;
+}
+
+
+/* =========================
+   BUSCA E ORDENAÇÃO
+========================= */
+
+#searchTask,
+#sortTasks {
+  width: 100%;
+
+  padding: 12px;
+
+  margin-bottom: 12px;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 8px;
+
+  background: white;
+
+  font-size: 14px;
+}
+
+
+/* =========================
+   FILTROS
+========================= */
 
 .filters {
   display: flex;
+
   gap: 10px;
-  margin-bottom: 15px;
+
+  margin-bottom: 20px;
 }
 
 .filter-btn {
-  border: none;
-  padding: 10px 15px;
-  border-radius: 6px;
-  cursor: pointer;
+  background: #e5e7eb;
+
+  color: #374151;
+}
+
+.filter-btn:hover {
+  background: #d1d5db;
 }
 
 .filter-btn.active {
-  font-weight: bold;
-  border: 2px solid #333;
+  background: #4f46e5;
+
+  color: white;
 }
 
-#searchTask {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+
+/* =========================
+   TAREFAS
+========================= */
+
+.task-item {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 15px;
+
+  list-style: none;
+
+  background: white;
+
+  padding: 20px;
+
+  margin-bottom: 12px;
+
+  border-radius: 12px;
+
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
 }
 
-#priority {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 10px;
+.task-item strong {
+  font-size: 16px;
 }
+
+.task-item p {
+  margin: 6px 0;
+
+  color: #6b7280;
+}
+
+.task-item button {
+  margin-left: 5px;
+}
+
+
+/* =========================
+   TAREFA CONCLUÍDA
+========================= */
+
+.completed {
+  opacity: 0.7;
+}
+
+.completed strong {
+  text-decoration: line-through;
+}
+
+
+/* =========================
+   PRIORIDADES
+========================= */
 
 .priority {
   display: inline-block;
+
   padding: 5px 10px;
-  border-radius: 6px;
+
+  border-radius: 20px;
+
   font-size: 12px;
+
   font-weight: bold;
 }
 
 .priority.low {
-  background: #d4edda;
+  background: #dcfce7;
+  color: #166534;
 }
 
 .priority.medium {
-  background: #fff3cd;
+  background: #fef3c7;
+  color: #92400e;
 }
 
 .priority.high {
-  background: #f8d7da;
+  background: #fee2e2;
+  color: #991b1b;
 }
 
-#sortTasks {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 6px;
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+@media (max-width: 700px) {
+
+  .container {
+    width: 92%;
+    margin-top: 30px;
+  }
+
+  .dashboard {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .task-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .task-item > div:last-child {
+    width: 100%;
+  }
+
+  .task-item button {
+    margin: 5px 5px 0 0;
+  }
+
+  .filters {
+    flex-wrap: wrap;
+  }
 }
