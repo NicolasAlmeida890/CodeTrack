@@ -1,5 +1,8 @@
 const technologyInput = document.querySelector("#technology");
 const taskInput = document.querySelector("#task");
+const priorityInput = document.querySelector("#priority");
+const dueDateInput = document.querySelector("#dueDate");
+
 const addTaskButton = document.querySelector("#addTask");
 const taskList = document.querySelector("#taskList");
 
@@ -15,20 +18,16 @@ const progressPercentageElement = document.querySelector("#progressPercentage");
 const filterButtons = document.querySelectorAll(".filter-btn");
 
 const searchInput = document.querySelector("#searchTask");
-
-const priorityInput = document.querySelector("#priority");
-
 const sortSelect = document.querySelector("#sortTasks");
 
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-
 let currentFilter = "all";
-
 
 function addTask() {
   const technology = technologyInput.value.trim();
   const taskName = taskInput.value.trim();
   const priority = priorityInput.value;
+  const dueDate = dueDateInput.value;
 
   if (technology === "" || taskName === "") {
     alert("Preencha todos os campos.");
@@ -40,6 +39,7 @@ function addTask() {
     technology: technology,
     name: taskName,
     priority: priority,
+    dueDate: dueDate,
     completed: false
   };
 
@@ -50,8 +50,9 @@ function addTask() {
 
   technologyInput.value = "";
   taskInput.value = "";
+  priorityInput.value = "medium";
+  dueDateInput.value = "";
 }
-
 
 function renderTasks() {
   taskList.innerHTML = "";
@@ -70,7 +71,9 @@ function renderTasks() {
     });
   }
 
-  const searchTerm = searchInput.value.toLowerCase().trim();
+  const searchTerm = searchInput.value
+    .toLowerCase()
+    .trim();
 
   if (searchTerm !== "") {
     filteredTasks = filteredTasks.filter(function(task) {
@@ -117,10 +120,45 @@ function renderTasks() {
       priorityText = "Alta";
     }
 
+    let dueDateText = "Sem prazo";
+
+    if (task.dueDate) {
+      const date = new Date(task.dueDate + "T00:00:00");
+
+      dueDateText = date.toLocaleDateString("pt-BR");
+    }
+
+    let deadlineStatus = "";
+
+    if (task.dueDate && !task.completed) {
+      const today = new Date();
+
+      today.setHours(0, 0, 0, 0);
+
+      const dueDate = new Date(task.dueDate + "T00:00:00");
+
+      if (dueDate < today) {
+        deadlineStatus = "overdue";
+      } else if (dueDate.getTime() === today.getTime()) {
+        deadlineStatus = "today";
+      }
+    }
+
+    if (deadlineStatus === "overdue") {
+      li.classList.add("overdue");
+    }
+
+    if (deadlineStatus === "today") {
+      li.classList.add("due-today");
+    }
+
     li.innerHTML = `
       <div>
         <strong>${task.name}</strong>
+
         <p>${task.technology}</p>
+
+        <p>Prazo: ${dueDateText}</p>
 
         <span class="priority ${priority}">
           ${priorityText}
@@ -148,7 +186,6 @@ function renderTasks() {
   updateStats();
   updateDashboard();
 }
-
 
 function toggleTask(id) {
   const task = tasks.find(function(task) {
@@ -203,9 +240,14 @@ function editTask(id) {
     return;
   }
 
-  const priority = newPriority.toLowerCase().trim();
+  const priority = newPriority
+    .toLowerCase()
+    .trim();
 
-  if (newName.trim() === "" || newTechnology.trim() === "") {
+  if (
+    newName.trim() === "" ||
+    newTechnology.trim() === ""
+  ) {
     alert("Os campos não podem ficar vazios.");
     return;
   }
@@ -234,18 +276,21 @@ function deleteTask(id) {
 
   saveTasks();
   renderTasks();
-}renderTasks();
-
-
-function saveTasks() {
-  localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
+function saveTasks() {
+  localStorage.setItem(
+    "tasks",
+    JSON.stringify(tasks)
+  );
+}
 
 function updateStats() {
-  const completedTasks = tasks.filter(function(task) {
-    return task.completed;
-  });
+  const completedTasks = tasks.filter(
+    function(task) {
+      return task.completed;
+    }
+  );
 
   const xp = completedTasks.length * 20;
 
@@ -260,13 +305,14 @@ function updateStats() {
   xpBar.style.width = `${xpCurrentLevel}%`;
 }
 
-
 function updateDashboard() {
   const totalTasks = tasks.length;
 
-  const completedTasks = tasks.filter(function(task) {
-    return task.completed;
-  }).length;
+  const completedTasks = tasks.filter(
+    function(task) {
+      return task.completed;
+    }
+  ).length;
 
   const pendingTasks = totalTasks - completedTasks;
 
@@ -284,27 +330,38 @@ function updateDashboard() {
   progressPercentageElement.textContent = `${progressPercentage}%`;
 }
 
-
 filterButtons.forEach(function(button) {
-  button.addEventListener("click", function() {
+  button.addEventListener(
+    "click",
+    function() {
+      currentFilter = button.dataset.filter;
 
-    currentFilter = button.dataset.filter;
+      filterButtons.forEach(
+        function(btn) {
+          btn.classList.remove("active");
+        }
+      );
 
-    filterButtons.forEach(function(btn) {
-      btn.classList.remove("active");
-    });
+      button.classList.add("active");
 
-    button.classList.add("active");
-
-    renderTasks();
-  });
+      renderTasks();
+    }
+  );
 });
 
+addTaskButton.addEventListener(
+  "click",
+  addTask
+);
 
-addTaskButton.addEventListener("click", addTask);
+searchInput.addEventListener(
+  "input",
+  renderTasks
+);
 
-searchInput.addEventListener("input", renderTasks);
-
-sortSelect.addEventListener("change", renderTasks);
+sortSelect.addEventListener(
+  "change",
+  renderTasks
+);
 
 renderTasks();
