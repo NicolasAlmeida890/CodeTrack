@@ -14,6 +14,8 @@ const progressPercentageElement = document.querySelector("#progressPercentage");
 
 const filterButtons = document.querySelectorAll(".filter-btn");
 
+const searchInput = document.querySelector("#searchTask");
+
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 let currentFilter = "all";
@@ -59,6 +61,17 @@ function renderTasks() {
   if (currentFilter === "completed") {
     filteredTasks = tasks.filter(function(task) {
       return task.completed;
+    });
+  }
+
+  const searchTerm = searchInput.value.toLowerCase().trim();
+
+  if (searchTerm !== "") {
+    filteredTasks = filteredTasks.filter(function(task) {
+      return (
+        task.name.toLowerCase().includes(searchTerm) ||
+        task.technology.toLowerCase().includes(searchTerm)
+      );
     });
   }
 
@@ -188,5 +201,6 @@ filterButtons.forEach(function(button) {
 
 addTaskButton.addEventListener("click", addTask);
 
+searchInput.addEventListener("input", renderTasks);
 
 renderTasks();
