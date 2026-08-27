@@ -161,3 +161,10 @@ button {
 .priority.high {
   background: #f8d7da;
 }
+
+#sortTasks {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+}

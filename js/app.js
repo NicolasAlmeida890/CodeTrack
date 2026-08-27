@@ -18,6 +18,8 @@ const searchInput = document.querySelector("#searchTask");
 
 const priorityInput = document.querySelector("#priority");
 
+const sortSelect = document.querySelector("#sortTasks");
+
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 let currentFilter = "all";
@@ -76,6 +78,21 @@ function renderTasks() {
         task.name.toLowerCase().includes(searchTerm) ||
         task.technology.toLowerCase().includes(searchTerm)
       );
+    });
+  }
+
+  if (sortSelect.value === "priority") {
+    const priorityOrder = {
+      high: 3,
+      medium: 2,
+      low: 1
+    };
+
+    filteredTasks = [...filteredTasks].sort(function(a, b) {
+      const priorityA = priorityOrder[a.priority || "medium"];
+      const priorityB = priorityOrder[b.priority || "medium"];
+
+      return priorityB - priorityA;
     });
   }
 
@@ -264,5 +281,7 @@ filterButtons.forEach(function(button) {
 addTaskButton.addEventListener("click", addTask);
 
 searchInput.addEventListener("input", renderTasks);
+
+sortSelect.addEventListener("change", renderTasks);
 
 renderTasks();
