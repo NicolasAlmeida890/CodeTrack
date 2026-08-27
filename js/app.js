@@ -22,6 +22,7 @@ const searchInput = document.querySelector("#searchTask");
 const sortSelect = document.querySelector("#sortTasks");
 
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let studyDays = JSON.parse(localStorage.getItem("studyDays")) || [];
 let currentFilter = "all";
 
 function addTask() {
@@ -207,6 +208,22 @@ function renderTasks() {
   updateDashboard();
 }
 
+function getTodayDate() {
+  const today = new Date();
+
+  const year = today.getFullYear();
+
+  const month = String(
+    today.getMonth() + 1
+  ).padStart(2, "0");
+
+  const day = String(
+    today.getDate()
+  ).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 function toggleTask(id) {
   const task = tasks.find(function(task) {
     return task.id === id;
@@ -217,6 +234,10 @@ function toggleTask(id) {
   }
 
   task.completed = !task.completed;
+
+  if (task.completed) {
+    registerStudyDay();
+  }
 
   saveTasks();
   renderTasks();
@@ -356,11 +377,19 @@ function updateDashboard() {
     );
   }
 
+  const studyStreakElement = document.querySelector("#studyStreak");
+  
+
   totalTasksElement.textContent = totalTasks;
   completedTasksElement.textContent = completedTasks;
   pendingTasksElement.textContent = pendingTasks;
   overdueTasksElement.textContent = overdueTasks;
   progressPercentageElement.textContent = `${progressPercentage}%`;
+
+  const streak = calculateStreak();
+
+  studyStreakElement.textContent =
+    `${streak} ${streak === 1 ? "dia" : "dias"}`;
 }
 
 filterButtons.forEach(function(button) {
@@ -398,3 +427,67 @@ sortSelect.addEventListener(
 );
 
 renderTasks();
+
+function registerStudyDay() {
+  const today = getTodayDate();
+
+  if (!studyDays.includes(today)) {
+    studyDays.push(today);
+
+    localStorage.setItem(
+      "studyDays",
+      JSON.stringify(studyDays)
+    );
+  }
+}
+
+function calculateStreak() {
+  if (studyDays.length === 0) {
+    return 0;
+  }
+
+  const studySet = new Set(studyDays);
+
+  const today = new Date();
+  today.setHours(12, 0, 0, 0);
+
+  let currentDate = new Date(today);
+
+  const todayString = getDateString(currentDate);
+
+  if (!studySet.has(todayString)) {
+    currentDate.setDate(currentDate.getDate() - 1);
+
+    const yesterdayString = getDateString(currentDate);
+
+    if (!studySet.has(yesterdayString)) {
+      return 0;
+    }
+  }
+
+  let streak = 0;
+
+  while (studySet.has(getDateString(currentDate))) {
+    streak++;
+
+    currentDate.setDate(
+      currentDate.getDate() - 1
+    );
+  }
+
+  return streak;
+}
+
+function getDateString(date) {
+  const year = date.getFullYear();
+
+  const month = String(
+    date.getMonth() + 1
+  ).padStart(2, "0");
+
+  const day = String(
+    date.getDate()
+  ).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
