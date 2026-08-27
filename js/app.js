@@ -95,6 +95,10 @@ function renderTasks() {
           ${task.completed ? "Desfazer" : "Concluir"}
         </button>
 
+        <button onclick="editTask(${task.id})">
+          Editar
+        </button>
+
         <button onclick="deleteTask(${task.id})">
           Excluir
         </button>
@@ -124,6 +128,44 @@ function toggleTask(id) {
   renderTasks();
 }
 
+function editTask(id) {
+  const task = tasks.find(function(task) {
+    return task.id === id;
+  });
+
+  if (!task) {
+    return;
+  }
+
+  const newName = prompt(
+    "Digite o novo nome da tarefa:",
+    task.name
+  );
+
+  if (newName === null) {
+    return;
+  }
+
+  const newTechnology = prompt(
+    "Digite a nova tecnologia:",
+    task.technology
+  );
+
+  if (newTechnology === null) {
+    return;
+  }
+
+  if (newName.trim() === "" || newTechnology.trim() === "") {
+    alert("Os campos não podem ficar vazios.");
+    return;
+  }
+
+  task.name = newName.trim();
+  task.technology = newTechnology.trim();
+
+  saveTasks();
+  renderTasks();
+}
 
 function deleteTask(id) {
   tasks = tasks.filter(function(task) {
@@ -132,7 +174,7 @@ function deleteTask(id) {
 
   saveTasks();
   renderTasks();
-}
+}renderTasks();
 
 
 function saveTasks() {
