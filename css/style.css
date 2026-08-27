@@ -109,3 +109,21 @@ button {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.filter-btn {
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.filter-btn.active {
+  font-weight: bold;
+  border: 2px solid #333;
+}
