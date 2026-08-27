@@ -13,6 +13,7 @@ const xpBar = document.querySelector("#xpBar");
 const totalTasksElement = document.querySelector("#totalTasks");
 const completedTasksElement = document.querySelector("#completedTasks");
 const pendingTasksElement = document.querySelector("#pendingTasks");
+const overdueTasksElement = document.querySelector("#overdueTasks");
 const progressPercentageElement = document.querySelector("#progressPercentage");
 
 const filterButtons = document.querySelectorAll(".filter-btn");
@@ -54,6 +55,19 @@ function addTask() {
   dueDateInput.value = "";
 }
 
+function isOverdue(task) {
+  if (!task.dueDate || task.completed) {
+    return false;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const dueDate = new Date(task.dueDate + "T00:00:00");
+
+  return dueDate < today;
+}
+
 function renderTasks() {
   taskList.innerHTML = "";
 
@@ -68,6 +82,12 @@ function renderTasks() {
   if (currentFilter === "completed") {
     filteredTasks = tasks.filter(function(task) {
       return task.completed;
+    });
+  }
+
+  if (currentFilter === "overdue") {
+    filteredTasks = tasks.filter(function(task) {
+      return isOverdue(task);
     });
   }
 
@@ -324,6 +344,10 @@ function updateDashboard() {
 
   const pendingTasks = totalTasks - completedTasks;
 
+  const overdueTasks = tasks.filter(function(task) {
+    return isOverdue(task);
+  }).length;
+
   let progressPercentage = 0;
 
   if (totalTasks > 0) {
@@ -335,6 +359,7 @@ function updateDashboard() {
   totalTasksElement.textContent = totalTasks;
   completedTasksElement.textContent = completedTasks;
   pendingTasksElement.textContent = pendingTasks;
+  overdueTasksElement.textContent = overdueTasks;
   progressPercentageElement.textContent = `${progressPercentage}%`;
 }
 
