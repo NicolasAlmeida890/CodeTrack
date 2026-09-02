@@ -332,3 +332,68 @@ section:last-child {
 .task-item.due-today {
   border-left: 5px solid #f59e0b;
 }
+
+.productivity {
+  background: white;
+  padding: 25px;
+  margin-top: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.productivity h2 {
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+.productivity > p {
+  margin-top: 0;
+  color: #6b7280;
+}
+
+.chart {
+  height: 220px;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  margin-top: 30px;
+}
+
+.chart-column {
+  flex: 1;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.chart-bar {
+  width: 70%;
+  min-height: 3px;
+
+  background: #4f46e5;
+
+  border-radius: 8px 8px 3px 3px;
+
+  transition: height 0.3s ease;
+}
+
+.chart-number {
+  margin-bottom: 5px;
+
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.chart-label {
+  margin-top: 8px;
+
+  font-size: 12px;
+  color: #6b7280;
+}

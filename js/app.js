@@ -21,6 +21,8 @@ const filterButtons = document.querySelectorAll(".filter-btn");
 const searchInput = document.querySelector("#searchTask");
 const sortSelect = document.querySelector("#sortTasks");
 
+const productivityChart = document.querySelector("#productivityChart");
+
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let studyDays = JSON.parse(localStorage.getItem("studyDays")) || [];
 let currentFilter = "all";
@@ -209,6 +211,78 @@ function renderTasks() {
   updateDashboard();
 }
 
+function updateProductivityChart() {
+  productivityChart.innerHTML = "";
+
+  const days = [];
+
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date();
+
+    date.setHours(12, 0, 0, 0);
+    date.setDate(date.getDate() - i);
+
+    const dateString = getDateString(date);
+
+    const completedCount = tasks.filter(function(task) {
+      if (!task.completedAt) {
+        return false;
+      }
+
+      const completedDate = new Date(task.completedAt);
+
+      return getDateString(completedDate) === dateString;
+    }).length;
+
+    days.push({
+      date: date,
+      count: completedCount
+    });
+  }
+
+  const maxTasks = Math.max(
+    ...days.map(function(day) {
+      return day.count;
+    }),
+    1
+  );
+
+  days.forEach(function(day) {
+    const column = document.createElement("div");
+
+    column.classList.add("chart-column");
+
+    const bar = document.createElement("div");
+
+    bar.classList.add("chart-bar");
+
+    const height = (day.count / maxTasks) * 100;
+
+    bar.style.height = `${height}%`;
+
+    const number = document.createElement("span");
+
+    number.classList.add("chart-number");
+    number.textContent = day.count;
+
+    const label = document.createElement("span");
+
+    label.classList.add("chart-label");
+
+    label.textContent = day.date
+      .toLocaleDateString("pt-BR", {
+        weekday: "short"
+      })
+      .replace(".", "");
+
+    column.appendChild(number);
+    column.appendChild(bar);
+    column.appendChild(label);
+
+    productivityChart.appendChild(column);
+  });
+}
+
 function getTodayDate() {
   const today = new Date();
 
@@ -246,6 +320,7 @@ function toggleTask(id) {
 
   saveTasks();
   renderTasks();
+  updateProductivityChart();
 }
 
 function editTask(id) {
