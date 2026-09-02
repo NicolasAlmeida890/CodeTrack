@@ -1,5 +1,6 @@
 const technologyInput = document.querySelector("#technology");
 const taskInput = document.querySelector("#task");
+const categoryInput = document.querySelector("#category");
 const priorityInput = document.querySelector("#priority");
 const dueDateInput = document.querySelector("#dueDate");
 
@@ -30,6 +31,7 @@ let currentFilter = "all";
 function addTask() {
   const technology = technologyInput.value.trim();
   const taskName = taskInput.value.trim();
+  const category = categoryInput.value;
   const priority = priorityInput.value;
   const dueDate = dueDateInput.value;
 
@@ -42,6 +44,7 @@ function addTask() {
     id: Date.now(),
     technology: technology,
     name: taskName,
+    category: category,
     priority: priority,
     dueDate: dueDate,
     completed: false,
@@ -57,6 +60,7 @@ function addTask() {
   taskInput.value = "";
   priorityInput.value = "medium";
   dueDateInput.value = "";
+  categoryInput.value = "frontend";
 }
 
 function isOverdue(task) {
@@ -103,7 +107,8 @@ function renderTasks() {
     filteredTasks = filteredTasks.filter(function(task) {
       return (
         task.name.toLowerCase().includes(searchTerm) ||
-        task.technology.toLowerCase().includes(searchTerm)
+        task.technology.toLowerCase().includes(searchTerm) ||
+        (task.category || "").toLowerCase().includes(searchTerm)
       );
     });
   }
@@ -176,11 +181,24 @@ function renderTasks() {
       li.classList.add("due-today");
     }
 
+    const category = task.category || "other";
+
+    const categoryNames = {
+      frontend: "Frontend",
+      backend: "Backend",
+      algorithms: "Algoritmos",
+      git: "Git / GitHub",
+      database: "Banco de Dados",
+      other: "Outros"
+    };
+
+    const categoryText = categoryNames[category];
+
     li.innerHTML = `
       <div>
         <strong>${task.name}</strong>
 
-        <p>${task.technology}</p>
+        <p>${task.technology} • ${categoryText}</p>
 
         <p>Prazo: ${dueDateText}</p>
 
