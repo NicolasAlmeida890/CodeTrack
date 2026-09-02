@@ -42,7 +42,8 @@ function addTask() {
     name: taskName,
     priority: priority,
     dueDate: dueDate,
-    completed: false
+    completed: false,
+    completedAt: null
   };
 
   tasks.push(newTask);
@@ -236,7 +237,11 @@ function toggleTask(id) {
   task.completed = !task.completed;
 
   if (task.completed) {
+    task.completedAt = new Date().toISOString();
+
     registerStudyDay();
+  } else {
+    task.completedAt = null;
   }
 
   saveTasks();
