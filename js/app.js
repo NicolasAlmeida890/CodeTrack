@@ -16,6 +16,7 @@ const completedTasksElement = document.querySelector("#completedTasks");
 const pendingTasksElement = document.querySelector("#pendingTasks");
 const overdueTasksElement = document.querySelector("#overdueTasks");
 const progressPercentageElement = document.querySelector("#progressPercentage");
+const studyStreakElement = document.querySelector("#studyStreak");
 
 const filterButtons = document.querySelectorAll(".filter-btn");
 
@@ -24,6 +25,7 @@ const sortSelect = document.querySelector("#sortTasks");
 const categoryFilter = document.querySelector("#categoryFilter");
 
 const productivityChart = document.querySelector("#productivityChart");
+const categoryProgress = document.querySelector("#categoryProgress");
 
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let studyDays = JSON.parse(localStorage.getItem("studyDays")) || [];
@@ -59,9 +61,9 @@ function addTask() {
 
   technologyInput.value = "";
   taskInput.value = "";
+  categoryInput.value = "frontend";
   priorityInput.value = "medium";
   dueDateInput.value = "";
-  categoryInput.value = "frontend";
 }
 
 function isOverdue(task) {
@@ -199,7 +201,7 @@ function renderTasks() {
       other: "Outros"
     };
 
-    const categoryText = categoryNames[category];
+    const categoryText = categoryNames[category] || "Outros";
 
     li.innerHTML = `
       <div>
@@ -234,6 +236,74 @@ function renderTasks() {
 
   updateStats();
   updateDashboard();
+  updateProductivityChart();
+  updateCategoryProgress();
+}
+
+function updateCategoryProgress() {
+  categoryProgress.innerHTML = "";
+
+  const categories = {
+    frontend: "Frontend",
+    backend: "Backend",
+    algorithms: "Algoritmos",
+    git: "Git / GitHub",
+    database: "Banco de Dados",
+    other: "Outros"
+  };
+
+  let hasCategories = false;
+
+  Object.entries(categories).forEach(function([category, name]) {
+    const categoryTasks = tasks.filter(function(task) {
+      return (task.category || "other") === category;
+    });
+
+    if (categoryTasks.length === 0) {
+      return;
+    }
+
+    hasCategories = true;
+
+    const completedTasks = categoryTasks.filter(function(task) {
+      return task.completed;
+    }).length;
+
+    const percentage = Math.round(
+      (completedTasks / categoryTasks.length) * 100
+    );
+
+    const item = document.createElement("div");
+
+    item.classList.add("category-progress-item");
+
+    item.innerHTML = `
+      <div class="category-progress-info">
+        <strong>${name}</strong>
+
+        <span>
+          ${completedTasks}/${categoryTasks.length} • ${percentage}%
+        </span>
+      </div>
+
+      <div class="category-progress-bar">
+        <div
+          class="category-progress-fill"
+          style="width: ${percentage}%"
+        ></div>
+      </div>
+    `;
+
+    categoryProgress.appendChild(item);
+  });
+
+  if (!hasCategories) {
+    categoryProgress.innerHTML = `
+      <p class="empty-category">
+        Adicione tarefas para visualizar seu progresso.
+      </p>
+    `;
+  }
 }
 
 function updateProductivityChart() {
@@ -345,7 +415,6 @@ function toggleTask(id) {
 
   saveTasks();
   renderTasks();
-  updateProductivityChart();
 }
 
 function editTask(id) {
@@ -395,7 +464,9 @@ function editTask(id) {
     return;
   }
 
-  const priority = newPriority.toLowerCase().trim();
+  const priority = newPriority
+    .toLowerCase()
+    .trim();
 
   if (
     newName.trim() === "" ||
@@ -440,11 +511,9 @@ function saveTasks() {
 }
 
 function updateStats() {
-  const completedTasks = tasks.filter(
-    function(task) {
-      return task.completed;
-    }
-  );
+  const completedTasks = tasks.filter(function(task) {
+    return task.completed;
+  });
 
   const xp = completedTasks.length * 20;
 
@@ -462,11 +531,9 @@ function updateStats() {
 function updateDashboard() {
   const totalTasks = tasks.length;
 
-  const completedTasks = tasks.filter(
-    function(task) {
-      return task.completed;
-    }
-  ).length;
+  const completedTasks = tasks.filter(function(task) {
+    return task.completed;
+  }).length;
 
   const pendingTasks = totalTasks - completedTasks;
 
@@ -482,9 +549,6 @@ function updateDashboard() {
     );
   }
 
-  const studyStreakElement = document.querySelector("#studyStreak");
-  
-
   totalTasksElement.textContent = totalTasks;
   completedTasksElement.textContent = completedTasks;
   pendingTasksElement.textContent = pendingTasks;
@@ -496,47 +560,6 @@ function updateDashboard() {
   studyStreakElement.textContent =
     `${streak} ${streak === 1 ? "dia" : "dias"}`;
 }
-
-filterButtons.forEach(function(button) {
-  button.addEventListener(
-    "click",
-    function() {
-      currentFilter = button.dataset.filter;
-
-      filterButtons.forEach(
-        function(btn) {
-          btn.classList.remove("active");
-        }
-      );
-
-      button.classList.add("active");
-
-      renderTasks();
-    }
-  );
-});
-
-addTaskButton.addEventListener(
-  "click",
-  addTask
-);
-
-searchInput.addEventListener(
-  "input",
-  renderTasks
-);
-
-sortSelect.addEventListener(
-  "change",
-  renderTasks
-);
-
-categoryFilter.addEventListener(
-  "change",
-  renderTasks
-);
-
-renderTasks();
 
 function registerStudyDay() {
   const today = getTodayDate();
@@ -601,3 +624,39 @@ function getDateString(date) {
 
   return `${year}-${month}-${day}`;
 }
+
+filterButtons.forEach(function(button) {
+  button.addEventListener("click", function() {
+    currentFilter = button.dataset.filter;
+
+    filterButtons.forEach(function(btn) {
+      btn.classList.remove("active");
+    });
+
+    button.classList.add("active");
+
+    renderTasks();
+  });
+});
+
+addTaskButton.addEventListener(
+  "click",
+  addTask
+);
+
+searchInput.addEventListener(
+  "input",
+  renderTasks
+);
+
+sortSelect.addEventListener(
+  "change",
+  renderTasks
+);
+
+categoryFilter.addEventListener(
+  "change",
+  renderTasks
+);
+
+renderTasks();
