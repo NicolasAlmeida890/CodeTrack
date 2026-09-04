@@ -27,9 +27,21 @@ const categoryFilter = document.querySelector("#categoryFilter");
 const productivityChart = document.querySelector("#productivityChart");
 const categoryProgress = document.querySelector("#categoryProgress");
 
+const editModal = document.querySelector("#editModal");
+const editTaskName = document.querySelector("#editTaskName");
+const editTechnology = document.querySelector("#editTechnology");
+const editCategory = document.querySelector("#editCategory");
+const editPriority = document.querySelector("#editPriority");
+const editDueDate = document.querySelector("#editDueDate");
+
+const cancelEditButton = document.querySelector("#cancelEdit");
+const saveEditButton = document.querySelector("#saveEdit");
+
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let studyDays = JSON.parse(localStorage.getItem("studyDays")) || [];
+
 let currentFilter = "all";
+let editingTaskId = null;
 
 function addTask() {
   const technology = technologyInput.value.trim();
@@ -221,7 +233,7 @@ function renderTasks() {
           ${task.completed ? "Desfazer" : "Concluir"}
         </button>
 
-        <button onclick="editTask(${task.id})">
+        <button onclick="openEditModal(${task.id})">
           Editar
         </button>
 
@@ -417,7 +429,7 @@ function toggleTask(id) {
   renderTasks();
 }
 
-function editTask(id) {
+function openEditModal(id) {
   const task = tasks.find(function(task) {
     return task.id === id;
   });
@@ -426,72 +438,49 @@ function editTask(id) {
     return;
   }
 
-  const newName = prompt(
-    "Digite o novo nome da tarefa:",
-    task.name
-  );
+  editingTaskId = id;
 
-  if (newName === null) {
+  editTaskName.value = task.name;
+  editTechnology.value = task.technology;
+  editCategory.value = task.category || "other";
+  editPriority.value = task.priority || "medium";
+  editDueDate.value = task.dueDate || "";
+
+  editModal.classList.add("open");
+}
+
+function closeEditModal() {
+  editModal.classList.remove("open");
+
+  editingTaskId = null;
+}
+
+function saveEditTask() {
+  const task = tasks.find(function(task) {
+    return task.id === editingTaskId;
+  });
+
+  if (!task) {
     return;
   }
 
-  const newTechnology = prompt(
-    "Digite a nova tecnologia:",
-    task.technology
-  );
+  const newName = editTaskName.value.trim();
+  const newTechnology = editTechnology.value.trim();
 
-  if (newTechnology === null) {
+  if (newName === "" || newTechnology === "") {
+    alert("Nome e tecnologia não podem ficar vazios.");
     return;
   }
 
-  const currentPriority = task.priority || "medium";
-
-  const newPriority = prompt(
-    "Digite a prioridade: low, medium ou high",
-    currentPriority
-  );
-
-  if (newPriority === null) {
-    return;
-  }
-
-  const newDueDate = prompt(
-    "Digite o novo prazo no formato AAAA-MM-DD:",
-    task.dueDate || ""
-  );
-
-  if (newDueDate === null) {
-    return;
-  }
-
-  const priority = newPriority
-    .toLowerCase()
-    .trim();
-
-  if (
-    newName.trim() === "" ||
-    newTechnology.trim() === ""
-  ) {
-    alert("Os campos não podem ficar vazios.");
-    return;
-  }
-
-  if (
-    priority !== "low" &&
-    priority !== "medium" &&
-    priority !== "high"
-  ) {
-    alert("Prioridade inválida. Use low, medium ou high.");
-    return;
-  }
-
-  task.name = newName.trim();
-  task.technology = newTechnology.trim();
-  task.priority = priority;
-  task.dueDate = newDueDate.trim();
+  task.name = newName;
+  task.technology = newTechnology;
+  task.category = editCategory.value;
+  task.priority = editPriority.value;
+  task.dueDate = editDueDate.value;
 
   saveTasks();
   renderTasks();
+  closeEditModal();
 }
 
 function deleteTask(id) {
@@ -658,5 +647,21 @@ categoryFilter.addEventListener(
   "change",
   renderTasks
 );
+
+cancelEditButton.addEventListener(
+  "click",
+  closeEditModal
+);
+
+saveEditButton.addEventListener(
+  "click",
+  saveEditTask
+);
+
+editModal.addEventListener("click", function(event) {
+  if (event.target === editModal) {
+    closeEditModal();
+  }
+});
 
 renderTasks();

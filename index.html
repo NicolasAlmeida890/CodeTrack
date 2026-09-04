@@ -165,6 +165,58 @@
 
   </main>
 
+  <div id="editModal" class="modal">
+
+    <div class="modal-content">
+
+      <h2>Editar tarefa</h2>
+
+      <input
+        type="text"
+        id="editTaskName"
+        placeholder="Nome da tarefa"
+      >
+
+      <input
+        type="text"
+        id="editTechnology"
+        placeholder="Tecnologia"
+      >
+
+      <select id="editCategory">
+        <option value="frontend">Frontend</option>
+        <option value="backend">Backend</option>
+        <option value="algorithms">Algoritmos</option>
+        <option value="git">Git / GitHub</option>
+        <option value="database">Banco de Dados</option>
+        <option value="other">Outros</option>
+      </select>
+
+      <select id="editPriority">
+        <option value="low">Baixa prioridade</option>
+        <option value="medium">Média prioridade</option>
+        <option value="high">Alta prioridade</option>
+      </select>
+
+      <input
+        type="date"
+        id="editDueDate"
+      >
+
+      <div class="modal-actions">
+        <button id="cancelEdit">
+          Cancelar
+        </button>
+
+        <button id="saveEdit">
+          Salvar alterações
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
   <script src="js/app.js"></script>
 
 </body>
