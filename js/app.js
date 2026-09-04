@@ -21,6 +21,7 @@ const filterButtons = document.querySelectorAll(".filter-btn");
 
 const searchInput = document.querySelector("#searchTask");
 const sortSelect = document.querySelector("#sortTasks");
+const categoryFilter = document.querySelector("#categoryFilter");
 
 const productivityChart = document.querySelector("#productivityChart");
 
@@ -96,6 +97,12 @@ function renderTasks() {
   if (currentFilter === "overdue") {
     filteredTasks = tasks.filter(function(task) {
       return isOverdue(task);
+    });
+  }
+
+  if (categoryFilter.value !== "all") {
+    filteredTasks = filteredTasks.filter(function(task) {
+      return (task.category || "other") === categoryFilter.value;
     });
   }
 
@@ -520,6 +527,11 @@ searchInput.addEventListener(
 );
 
 sortSelect.addEventListener(
+  "change",
+  renderTasks
+);
+
+categoryFilter.addEventListener(
   "change",
   renderTasks
 );
