@@ -1,3 +1,5 @@
+const API_URL = "http://localhost:3000/api/tasks";
+
 const technologyInput = document.querySelector("#technology");
 const taskInput = document.querySelector("#task");
 const categoryInput = document.querySelector("#category");
@@ -37,13 +39,31 @@ const editDueDate = document.querySelector("#editDueDate");
 const cancelEditButton = document.querySelector("#cancelEdit");
 const saveEditButton = document.querySelector("#saveEdit");
 
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let tasks = [];
 let studyDays = JSON.parse(localStorage.getItem("studyDays")) || [];
 
 let currentFilter = "all";
 let editingTaskId = null;
 
-function addTask() {
+async function loadTasks() {
+  try {
+    const response = await fetch(API_URL);
+
+    if (!response.ok) {
+      throw new Error("Erro ao carregar tarefas.");
+    }
+
+    tasks = await response.json();
+
+    renderTasks();
+  } catch (error) {
+    console.error(error);
+
+    alert("Não foi possível conectar ao servidor.");
+  }
+}
+
+async function addTask() {
   const technology = technologyInput.value.trim();
   const taskName = taskInput.value.trim();
   const category = categoryInput.value;
@@ -56,26 +76,44 @@ function addTask() {
   }
 
   const newTask = {
-    id: Date.now(),
-    technology: technology,
     name: taskName,
+    technology: technology,
     category: category,
     priority: priority,
-    dueDate: dueDate,
-    completed: false,
-    completedAt: null
+    dueDate: dueDate
   };
 
-  tasks.push(newTask);
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
 
-  saveTasks();
-  renderTasks();
+      headers: {
+        "Content-Type": "application/json"
+      },
 
-  technologyInput.value = "";
-  taskInput.value = "";
-  categoryInput.value = "frontend";
-  priorityInput.value = "medium";
-  dueDateInput.value = "";
+      body: JSON.stringify(newTask)
+    });
+
+    if (!response.ok) {
+      throw new Error("Erro ao criar tarefa.");
+    }
+
+    const createdTask = await response.json();
+
+    tasks.push(createdTask);
+
+    technologyInput.value = "";
+    taskInput.value = "";
+    categoryInput.value = "frontend";
+    priorityInput.value = "medium";
+    dueDateInput.value = "";
+
+    renderTasks();
+  } catch (error) {
+    console.error(error);
+
+    alert("Não foi possível adicionar a tarefa.");
+  }
 }
 
 function isOverdue(task) {
@@ -84,9 +122,12 @@ function isOverdue(task) {
   }
 
   const today = new Date();
+
   today.setHours(0, 0, 0, 0);
 
-  const dueDate = new Date(task.dueDate + "T00:00:00");
+  const dueDate = new Date(
+    task.dueDate + "T00:00:00"
+  );
 
   return dueDate < today;
 }
@@ -142,8 +183,11 @@ function renderTasks() {
     };
 
     filteredTasks = [...filteredTasks].sort(function(a, b) {
-      const priorityA = priorityOrder[a.priority || "medium"];
-      const priorityB = priorityOrder[b.priority || "medium"];
+      const priorityA =
+        priorityOrder[a.priority || "medium"];
+
+      const priorityB =
+        priorityOrder[b.priority || "medium"];
 
       return priorityB - priorityA;
     });
@@ -173,9 +217,13 @@ function renderTasks() {
     let dueDateText = "Sem prazo";
 
     if (task.dueDate) {
-      const date = new Date(task.dueDate + "T00:00:00");
+      const date = new Date(
+        task.dueDate + "T00:00:00"
+      );
 
-      dueDateText = date.toLocaleDateString("pt-BR");
+      dueDateText = date.toLocaleDateString(
+        "pt-BR"
+      );
     }
 
     let deadlineStatus = "";
@@ -185,11 +233,15 @@ function renderTasks() {
 
       today.setHours(0, 0, 0, 0);
 
-      const dueDate = new Date(task.dueDate + "T00:00:00");
+      const dueDate = new Date(
+        task.dueDate + "T00:00:00"
+      );
 
       if (dueDate < today) {
         deadlineStatus = "overdue";
-      } else if (dueDate.getTime() === today.getTime()) {
+      } else if (
+        dueDate.getTime() === today.getTime()
+      ) {
         deadlineStatus = "today";
       }
     }
@@ -213,15 +265,20 @@ function renderTasks() {
       other: "Outros"
     };
 
-    const categoryText = categoryNames[category] || "Outros";
+    const categoryText =
+      categoryNames[category] || "Outros";
 
     li.innerHTML = `
       <div>
         <strong>${task.name}</strong>
 
-        <p>${task.technology} • ${categoryText}</p>
+        <p>
+          ${task.technology} • ${categoryText}
+        </p>
 
-        <p>Prazo: ${dueDateText}</p>
+        <p>
+          Prazo: ${dueDateText}
+        </p>
 
         <span class="priority ${priority}">
           ${priorityText}
@@ -252,6 +309,273 @@ function renderTasks() {
   updateCategoryProgress();
 }
 
+async function toggleTask(id) {
+  const task = tasks.find(function(task) {
+    return task.id === id;
+  });
+
+  if (!task) {
+    return;
+  }
+
+  const completed = !task.completed;
+
+  const completedAt = completed
+    ? new Date().toISOString()
+    : null;
+
+  try {
+    const response = await fetch(
+      `${API_URL}/${id}`,
+      {
+        method: "PUT",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          completed: completed,
+          completedAt: completedAt
+        })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        "Erro ao atualizar tarefa."
+      );
+    }
+
+    const updatedTask =
+      await response.json();
+
+    Object.assign(task, updatedTask);
+
+    if (task.completed) {
+      registerStudyDay();
+    }
+
+    renderTasks();
+  } catch (error) {
+    console.error(error);
+
+    alert(
+      "Não foi possível atualizar a tarefa."
+    );
+  }
+}
+
+async function deleteTask(id) {
+  try {
+    const response = await fetch(
+      `${API_URL}/${id}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        "Erro ao excluir tarefa."
+      );
+    }
+
+    tasks = tasks.filter(function(task) {
+      return task.id !== id;
+    });
+
+    renderTasks();
+  } catch (error) {
+    console.error(error);
+
+    alert(
+      "Não foi possível excluir a tarefa."
+    );
+  }
+}
+
+function openEditModal(id) {
+  const task = tasks.find(function(task) {
+    return task.id === id;
+  });
+
+  if (!task) {
+    return;
+  }
+
+  editingTaskId = id;
+
+  editTaskName.value = task.name;
+  editTechnology.value = task.technology;
+  editCategory.value =
+    task.category || "other";
+  editPriority.value =
+    task.priority || "medium";
+  editDueDate.value =
+    task.dueDate || "";
+
+  editModal.classList.add("open");
+}
+
+function closeEditModal() {
+  editModal.classList.remove("open");
+
+  editingTaskId = null;
+}
+
+async function saveEditTask() {
+  const task = tasks.find(function(task) {
+    return task.id === editingTaskId;
+  });
+
+  if (!task) {
+    return;
+  }
+
+  const newName =
+    editTaskName.value.trim();
+
+  const newTechnology =
+    editTechnology.value.trim();
+
+  if (
+    newName === "" ||
+    newTechnology === ""
+  ) {
+    alert(
+      "Nome e tecnologia não podem ficar vazios."
+    );
+
+    return;
+  }
+
+  const updatedData = {
+    name: newName,
+    technology: newTechnology,
+    category: editCategory.value,
+    priority: editPriority.value,
+    dueDate: editDueDate.value
+  };
+
+  try {
+    const response = await fetch(
+      `${API_URL}/${editingTaskId}`,
+      {
+        method: "PUT",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(
+          updatedData
+        )
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        "Erro ao editar tarefa."
+      );
+    }
+
+    const updatedTask =
+      await response.json();
+
+    Object.assign(
+      task,
+      updatedTask
+    );
+
+    renderTasks();
+
+    closeEditModal();
+  } catch (error) {
+    console.error(error);
+
+    alert(
+      "Não foi possível editar a tarefa."
+    );
+  }
+}
+
+function updateStats() {
+  const completedTasks = tasks.filter(
+    function(task) {
+      return task.completed;
+    }
+  );
+
+  const xp =
+    completedTasks.length * 20;
+
+  const level =
+    Math.floor(xp / 100) + 1;
+
+  const xpCurrentLevel =
+    xp % 100;
+
+  levelElement.textContent =
+    `Nível ${level}`;
+
+  xpElement.textContent =
+    `${xpCurrentLevel} / 100 XP`;
+
+  xpBar.style.width =
+    `${xpCurrentLevel}%`;
+}
+
+function updateDashboard() {
+  const totalTasks = tasks.length;
+
+  const completedTasks = tasks.filter(
+    function(task) {
+      return task.completed;
+    }
+  ).length;
+
+  const pendingTasks =
+    totalTasks - completedTasks;
+
+  const overdueTasks = tasks.filter(
+    function(task) {
+      return isOverdue(task);
+    }
+  ).length;
+
+  let progressPercentage = 0;
+
+  if (totalTasks > 0) {
+    progressPercentage = Math.round(
+      (completedTasks / totalTasks) * 100
+    );
+  }
+
+  totalTasksElement.textContent =
+    totalTasks;
+
+  completedTasksElement.textContent =
+    completedTasks;
+
+  pendingTasksElement.textContent =
+    pendingTasks;
+
+  overdueTasksElement.textContent =
+    overdueTasks;
+
+  progressPercentageElement.textContent =
+    `${progressPercentage}%`;
+
+  const streak =
+    calculateStreak();
+
+  studyStreakElement.textContent =
+    `${streak} ${
+      streak === 1 ? "dia" : "dias"
+    }`;
+}
+
 function updateCategoryProgress() {
   categoryProgress.innerHTML = "";
 
@@ -266,48 +590,68 @@ function updateCategoryProgress() {
 
   let hasCategories = false;
 
-  Object.entries(categories).forEach(function([category, name]) {
-    const categoryTasks = tasks.filter(function(task) {
-      return (task.category || "other") === category;
-    });
+  Object.entries(categories).forEach(
+    function([category, name]) {
+      const categoryTasks = tasks.filter(
+        function(task) {
+          return (
+            task.category || "other"
+          ) === category;
+        }
+      );
 
-    if (categoryTasks.length === 0) {
-      return;
+      if (
+        categoryTasks.length === 0
+      ) {
+        return;
+      }
+
+      hasCategories = true;
+
+      const completedTasks =
+        categoryTasks.filter(
+          function(task) {
+            return task.completed;
+          }
+        ).length;
+
+      const percentage = Math.round(
+        (
+          completedTasks /
+          categoryTasks.length
+        ) * 100
+      );
+
+      const item =
+        document.createElement("div");
+
+      item.classList.add(
+        "category-progress-item"
+      );
+
+      item.innerHTML = `
+        <div class="category-progress-info">
+          <strong>${name}</strong>
+
+          <span>
+            ${completedTasks}/${categoryTasks.length}
+            • ${percentage}%
+          </span>
+        </div>
+
+        <div class="category-progress-bar">
+          <div
+            class="category-progress-fill"
+            style="width: ${percentage}%"
+          ></div>
+        </div>
+      `;
+
+      categoryProgress.appendChild(
+        item
+      );
     }
-
-    hasCategories = true;
-
-    const completedTasks = categoryTasks.filter(function(task) {
-      return task.completed;
-    }).length;
-
-    const percentage = Math.round(
-      (completedTasks / categoryTasks.length) * 100
-    );
-
-    const item = document.createElement("div");
-
-    item.classList.add("category-progress-item");
-
-    item.innerHTML = `
-      <div class="category-progress-info">
-        <strong>${name}</strong>
-
-        <span>
-          ${completedTasks}/${categoryTasks.length} • ${percentage}%
-        </span>
-      </div>
-
-      <div class="category-progress-bar">
-        <div
-          class="category-progress-fill"
-          style="width: ${percentage}%"
-        ></div>
-      </div>
-    `;
-
-    categoryProgress.appendChild(item);
-  });
+  );
 
   if (!hasCategories) {
     categoryProgress.innerHTML = `
@@ -326,20 +670,37 @@ function updateProductivityChart() {
   for (let i = 6; i >= 0; i--) {
     const date = new Date();
 
-    date.setHours(12, 0, 0, 0);
-    date.setDate(date.getDate() - i);
+    date.setHours(
+      12,
+      0,
+      0,
+      0
+    );
 
-    const dateString = getDateString(date);
+    date.setDate(
+      date.getDate() - i
+    );
 
-    const completedCount = tasks.filter(function(task) {
-      if (!task.completedAt) {
-        return false;
-      }
+    const dateString =
+      getDateString(date);
 
-      const completedDate = new Date(task.completedAt);
+    const completedCount =
+      tasks.filter(function(task) {
+        if (!task.completedAt) {
+          return false;
+        }
 
-      return getDateString(completedDate) === dateString;
-    }).length;
+        const completedDate =
+          new Date(
+            task.completedAt
+          );
+
+        return (
+          getDateString(
+            completedDate
+          ) === dateString
+        );
+      }).length;
 
     days.push({
       date: date,
@@ -355,205 +716,90 @@ function updateProductivityChart() {
   );
 
   days.forEach(function(day) {
-    const column = document.createElement("div");
+    const column =
+      document.createElement("div");
 
-    column.classList.add("chart-column");
+    column.classList.add(
+      "chart-column"
+    );
 
-    const bar = document.createElement("div");
+    const bar =
+      document.createElement("div");
 
-    bar.classList.add("chart-bar");
+    bar.classList.add(
+      "chart-bar"
+    );
 
-    const height = (day.count / maxTasks) * 100;
+    const height =
+      (day.count / maxTasks) * 100;
 
-    bar.style.height = `${height}%`;
+    bar.style.height =
+      `${height}%`;
 
-    const number = document.createElement("span");
+    const number =
+      document.createElement("span");
 
-    number.classList.add("chart-number");
-    number.textContent = day.count;
+    number.classList.add(
+      "chart-number"
+    );
 
-    const label = document.createElement("span");
+    number.textContent =
+      day.count;
 
-    label.classList.add("chart-label");
+    const label =
+      document.createElement("span");
+
+    label.classList.add(
+      "chart-label"
+    );
 
     label.textContent = day.date
-      .toLocaleDateString("pt-BR", {
-        weekday: "short"
-      })
+      .toLocaleDateString(
+        "pt-BR",
+        {
+          weekday: "short"
+        }
+      )
       .replace(".", "");
 
     column.appendChild(number);
     column.appendChild(bar);
     column.appendChild(label);
 
-    productivityChart.appendChild(column);
+    productivityChart.appendChild(
+      column
+    );
   });
 }
 
 function getTodayDate() {
-  const today = new Date();
+  return getDateString(
+    new Date()
+  );
+}
 
-  const year = today.getFullYear();
+function getDateString(date) {
+  const year =
+    date.getFullYear();
 
   const month = String(
-    today.getMonth() + 1
+    date.getMonth() + 1
   ).padStart(2, "0");
 
   const day = String(
-    today.getDate()
+    date.getDate()
   ).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
 }
 
-function toggleTask(id) {
-  const task = tasks.find(function(task) {
-    return task.id === id;
-  });
-
-  if (!task) {
-    return;
-  }
-
-  task.completed = !task.completed;
-
-  if (task.completed) {
-    task.completedAt = new Date().toISOString();
-
-    registerStudyDay();
-  } else {
-    task.completedAt = null;
-  }
-
-  saveTasks();
-  renderTasks();
-}
-
-function openEditModal(id) {
-  const task = tasks.find(function(task) {
-    return task.id === id;
-  });
-
-  if (!task) {
-    return;
-  }
-
-  editingTaskId = id;
-
-  editTaskName.value = task.name;
-  editTechnology.value = task.technology;
-  editCategory.value = task.category || "other";
-  editPriority.value = task.priority || "medium";
-  editDueDate.value = task.dueDate || "";
-
-  editModal.classList.add("open");
-}
-
-function closeEditModal() {
-  editModal.classList.remove("open");
-
-  editingTaskId = null;
-}
-
-function saveEditTask() {
-  const task = tasks.find(function(task) {
-    return task.id === editingTaskId;
-  });
-
-  if (!task) {
-    return;
-  }
-
-  const newName = editTaskName.value.trim();
-  const newTechnology = editTechnology.value.trim();
-
-  if (newName === "" || newTechnology === "") {
-    alert("Nome e tecnologia não podem ficar vazios.");
-    return;
-  }
-
-  task.name = newName;
-  task.technology = newTechnology;
-  task.category = editCategory.value;
-  task.priority = editPriority.value;
-  task.dueDate = editDueDate.value;
-
-  saveTasks();
-  renderTasks();
-  closeEditModal();
-}
-
-function deleteTask(id) {
-  tasks = tasks.filter(function(task) {
-    return task.id !== id;
-  });
-
-  saveTasks();
-  renderTasks();
-}
-
-function saveTasks() {
-  localStorage.setItem(
-    "tasks",
-    JSON.stringify(tasks)
-  );
-}
-
-function updateStats() {
-  const completedTasks = tasks.filter(function(task) {
-    return task.completed;
-  });
-
-  const xp = completedTasks.length * 20;
-
-  const level = Math.floor(xp / 100) + 1;
-
-  const xpCurrentLevel = xp % 100;
-
-  levelElement.textContent = `Nível ${level}`;
-
-  xpElement.textContent = `${xpCurrentLevel} / 100 XP`;
-
-  xpBar.style.width = `${xpCurrentLevel}%`;
-}
-
-function updateDashboard() {
-  const totalTasks = tasks.length;
-
-  const completedTasks = tasks.filter(function(task) {
-    return task.completed;
-  }).length;
-
-  const pendingTasks = totalTasks - completedTasks;
-
-  const overdueTasks = tasks.filter(function(task) {
-    return isOverdue(task);
-  }).length;
-
-  let progressPercentage = 0;
-
-  if (totalTasks > 0) {
-    progressPercentage = Math.round(
-      (completedTasks / totalTasks) * 100
-    );
-  }
-
-  totalTasksElement.textContent = totalTasks;
-  completedTasksElement.textContent = completedTasks;
-  pendingTasksElement.textContent = pendingTasks;
-  overdueTasksElement.textContent = overdueTasks;
-  progressPercentageElement.textContent = `${progressPercentage}%`;
-
-  const streak = calculateStreak();
-
-  studyStreakElement.textContent =
-    `${streak} ${streak === 1 ? "dia" : "dias"}`;
-}
-
 function registerStudyDay() {
-  const today = getTodayDate();
+  const today =
+    getTodayDate();
 
-  if (!studyDays.includes(today)) {
+  if (
+    !studyDays.includes(today)
+  ) {
     studyDays.push(today);
 
     localStorage.setItem(
@@ -568,28 +814,57 @@ function calculateStreak() {
     return 0;
   }
 
-  const studySet = new Set(studyDays);
+  const studySet =
+    new Set(studyDays);
 
-  const today = new Date();
-  today.setHours(12, 0, 0, 0);
+  const today =
+    new Date();
 
-  let currentDate = new Date(today);
+  today.setHours(
+    12,
+    0,
+    0,
+    0
+  );
 
-  const todayString = getDateString(currentDate);
+  let currentDate =
+    new Date(today);
 
-  if (!studySet.has(todayString)) {
-    currentDate.setDate(currentDate.getDate() - 1);
+  const todayString =
+    getDateString(
+      currentDate
+    );
 
-    const yesterdayString = getDateString(currentDate);
+  if (
+    !studySet.has(todayString)
+  ) {
+    currentDate.setDate(
+      currentDate.getDate() - 1
+    );
 
-    if (!studySet.has(yesterdayString)) {
+    const yesterdayString =
+      getDateString(
+        currentDate
+      );
+
+    if (
+      !studySet.has(
+        yesterdayString
+      )
+    ) {
       return 0;
     }
   }
 
   let streak = 0;
 
-  while (studySet.has(getDateString(currentDate))) {
+  while (
+    studySet.has(
+      getDateString(
+        currentDate
+      )
+    )
+  ) {
     streak++;
 
     currentDate.setDate(
@@ -600,33 +875,31 @@ function calculateStreak() {
   return streak;
 }
 
-function getDateString(date) {
-  const year = date.getFullYear();
+filterButtons.forEach(
+  function(button) {
+    button.addEventListener(
+      "click",
+      function() {
+        currentFilter =
+          button.dataset.filter;
 
-  const month = String(
-    date.getMonth() + 1
-  ).padStart(2, "0");
+        filterButtons.forEach(
+          function(btn) {
+            btn.classList.remove(
+              "active"
+            );
+          }
+        );
 
-  const day = String(
-    date.getDate()
-  ).padStart(2, "0");
+        button.classList.add(
+          "active"
+        );
 
-  return `${year}-${month}-${day}`;
-}
-
-filterButtons.forEach(function(button) {
-  button.addEventListener("click", function() {
-    currentFilter = button.dataset.filter;
-
-    filterButtons.forEach(function(btn) {
-      btn.classList.remove("active");
-    });
-
-    button.classList.add("active");
-
-    renderTasks();
-  });
-});
+        renderTasks();
+      }
+    );
+  }
+);
 
 addTaskButton.addEventListener(
   "click",
@@ -658,10 +931,15 @@ saveEditButton.addEventListener(
   saveEditTask
 );
 
-editModal.addEventListener("click", function(event) {
-  if (event.target === editModal) {
-    closeEditModal();
+editModal.addEventListener(
+  "click",
+  function(event) {
+    if (
+      event.target === editModal
+    ) {
+      closeEditModal();
+    }
   }
-});
+);
 
-renderTasks();
+loadTasks();

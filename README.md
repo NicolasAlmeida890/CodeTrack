@@ -1,83 +1,278 @@
-# CodeTrack
+# CodeTrack 🚀
 
-CodeTrack é uma aplicação web para organizar estudos de programação de forma simples e gamificada.
+O CodeTrack é uma aplicação web para organizar estudos de programação, acompanhar o progresso e tornar o aprendizado mais motivador através de gamificação.
 
-O projeto foi criado com o objetivo de praticar fundamentos de desenvolvimento web, manipulação do DOM, arrays, objetos, `localStorage` e organização de código com JavaScript.
+O projeto começou como uma aplicação simples utilizando HTML, CSS e JavaScript e está evoluindo gradualmente para uma aplicação Full Stack.
 
-## Funcionalidades
+Atualmente, o frontend já está conectado a uma API REST desenvolvida com Node.js e Express.
 
-* [x] Adicionar tarefas
-* [x] Marcar tarefas como concluídas
-* [x] Desfazer conclusão
-* [x] Excluir tarefas
-* [x] Editar tarefas
-* [x] Salvar tarefas com `localStorage`
-* [x] Sistema de XP
-* [x] Sistema de níveis
-* [x] Barra de progresso de XP
-* [x] Dashboard de estatísticas
-* [x] Mostrar tarefas totais
-* [x] Mostrar tarefas concluídas
-* [x] Mostrar tarefas pendentes
-* [x] Mostrar porcentagem de progresso
-* [x] Filtrar tarefas por status
-* [x] Buscar por tarefa ou tecnologia
-* [x] Adicionar prioridade às tarefas
-* [x] Ordenar tarefas por prioridade
-* [x] Editar prioridade das tarefas
-* [ ] Melhorar o design da aplicação
-* [ ] Melhorar responsividade
-* [ ] Adicionar categorias
-* [ ] Criar sistema de streak
-* [ ] Criar backend
-* [ ] Adicionar banco de dados
-* [ ] Criar sistema de usuários
-* [ ] Fazer deploy
+## 📌 Status
 
-## Tecnologias
+🚧 Projeto em desenvolvimento.
 
-* HTML5
-* CSS3
-* JavaScript
-* Git
-* GitHub
-* LocalStorage
+### Atualmente
 
-## Como funciona
+- Frontend funcional
+- API REST funcionando
+- Frontend conectado ao backend
+- CRUD de tarefas completo
+- Dashboard de progresso
+- Sistema de XP e níveis
+- Streak de estudos
+- Gráfico de produtividade
+- Categorias, prioridades e prazos
 
-O usuário pode cadastrar uma tarefa informando:
+### Próximo grande passo
 
-* tecnologia;
-* nome da tarefa;
-* prioridade.
+Adicionar PostgreSQL para persistir os dados permanentemente.
 
-As prioridades disponíveis são:
+Atualmente, as tarefas ficam armazenadas na memória do servidor e são perdidas quando o backend é reiniciado.
 
-* Baixa
-* Média
-* Alta
+---
 
-As tarefas podem ser concluídas, editadas ou excluídas.
+## ✨ Funcionalidades
 
-Também é possível filtrar as tarefas entre:
+### Gerenciamento de tarefas
 
-* Todas
-* Pendentes
-* Concluídas
+- [x] Criar tarefas
+- [x] Editar tarefas
+- [x] Excluir tarefas
+- [x] Marcar tarefas como concluídas
+- [x] Desfazer conclusão
+- [x] Adicionar tecnologia
+- [x] Adicionar categoria
+- [x] Adicionar prioridade
+- [x] Adicionar prazo
+- [x] Identificar tarefas atrasadas
+- [x] Identificar tarefas que vencem no dia
 
-A aplicação possui uma busca que permite procurar tarefas pelo nome ou pela tecnologia.
+### Filtros e organização
 
-## Sistema de XP
+- [x] Buscar tarefas
+- [x] Filtrar tarefas pendentes
+- [x] Filtrar tarefas concluídas
+- [x] Filtrar tarefas atrasadas
+- [x] Filtrar por categoria
+- [x] Ordenar por prioridade
+
+### Gamificação
+
+- [x] Sistema de XP
+- [x] Sistema de níveis
+- [x] Barra de progresso
+- [x] Sequência de dias de estudo
+- [x] Registro de data de conclusão das tarefas
+
+### Dashboard
+
+- [x] Total de tarefas
+- [x] Tarefas concluídas
+- [x] Tarefas pendentes
+- [x] Tarefas atrasadas
+- [x] Porcentagem de progresso
+- [x] Streak de estudos
+- [x] Produtividade dos últimos 7 dias
+- [x] Progresso por categoria
+
+### Interface
+
+- [x] Layout responsivo
+- [x] Cards de estatísticas
+- [x] Modal para edição de tarefas
+- [x] Indicadores de prioridade
+- [x] Destaque visual para tarefas atrasadas
+- [x] Gráfico de produtividade
+
+---
+
+## 🛠️ Tecnologias
+
+### Frontend
+
+- HTML5
+- CSS3
+- JavaScript
+- Fetch API
+- LocalStorage
+
+### Backend
+
+- Node.js
+- Express
+- CORS
+- REST API
+
+### Ferramentas
+
+- Git
+- GitHub
+- npm
+- VS Code
+- Live Server
+
+### Planejado
+
+- PostgreSQL
+- Autenticação de usuários
+- Testes
+- Variáveis de ambiente
+- Deploy
+- Possível migração para React
+
+---
+
+## 🔌 API REST
+
+O backend possui um CRUD de tarefas utilizando Express.
+
+### Listar tarefas
+
+```http
+GET /api/tasks
+```
+
+### Criar tarefa
+
+```http
+POST /api/tasks
+```
+
+### Atualizar tarefa
+
+```http
+PUT /api/tasks/:id
+```
+
+### Excluir tarefa
+
+```http
+DELETE /api/tasks/:id
+```
+
+### Verificar funcionamento da API
+
+```http
+GET /api/health
+```
+
+---
+
+## 🔄 Arquitetura atual
+
+```text
+Frontend
+   │
+   │ Fetch API
+   ↓
+Node.js + Express
+   │
+   ↓
+API REST
+   │
+   ↓
+Dados em memória
+```
+
+A próxima evolução será:
+
+```text
+Frontend
+   │
+   ↓
+API REST
+   │
+   ↓
+Node.js + Express
+   │
+   ↓
+PostgreSQL
+```
+
+---
+
+## 📂 Estrutura do projeto
+
+```text
+CodeTrack/
+│
+├── index.html
+├── README.md
+│
+├── css/
+│   └── style.css
+│
+├── js/
+│   └── app.js
+│
+└── server/
+    ├── server.js
+    ├── package.json
+    └── package-lock.json
+```
+
+---
+
+## ▶️ Como executar
+
+### 1. Instale as dependências do backend
+
+Entre na pasta do servidor:
+
+```bash
+cd server
+```
+
+Instale as dependências:
+
+```bash
+npm install
+```
+
+### 2. Inicie o backend
+
+```bash
+node server.js
+```
+
+O servidor será iniciado em:
+
+```text
+http://localhost:3000
+```
+
+A API pode ser testada em:
+
+```text
+http://localhost:3000/api/health
+```
+
+### 3. Inicie o frontend
+
+Abra o `index.html` utilizando o Live Server.
+
+Normalmente o frontend será iniciado em:
+
+```text
+http://127.0.0.1:5500/index.html
+```
+
+O frontend se comunica com a API através de:
+
+```text
+http://localhost:3000/api/tasks
+```
+
+---
+
+## 🎮 Sistema de XP
 
 Cada tarefa concluída concede:
 
-**20 XP**
+```text
+20 XP
+```
 
-A cada:
-
-**100 XP**
-
-o usuário sobe um nível.
+A cada 100 XP o usuário sobe um nível.
 
 Exemplo:
 
@@ -88,90 +283,159 @@ Exemplo:
 300 XP → Nível 4
 ```
 
-## Dashboard
+---
 
-O dashboard mostra automaticamente:
+## 🔥 Streak
 
-* número total de tarefas;
-* tarefas concluídas;
-* tarefas pendentes;
-* porcentagem de progresso.
+O CodeTrack registra os dias em que pelo menos uma tarefa foi concluída.
 
-As informações são recalculadas sempre que uma tarefa é adicionada, concluída, editada ou excluída.
-
-## Persistência de dados
-
-As tarefas são armazenadas utilizando:
-
-```javascript
-localStorage
-```
-
-Isso permite que os dados continuem disponíveis mesmo depois de atualizar ou fechar a página.
-
-## Estrutura do projeto
+Exemplo:
 
 ```text
-codetrack/
-│
-├── index.html
-│
-├── css/
-│   └── style.css
-│
-├── js/
-│   └── app.js
-│
-├── assets/
-│   └── images/
-│
-└── README.md
+Segunda ✅
+Terça   ✅
+Quarta  ✅
+Quinta  ✅
+
+Sequência: 4 dias 🔥
 ```
 
-## O que estou aprendendo
+Atualmente, o histórico do streak utiliza `localStorage`.
 
-Durante o desenvolvimento deste projeto estou praticando:
+Futuramente esses dados também serão armazenados no banco de dados.
 
-* manipulação do DOM;
-* eventos em JavaScript;
-* funções;
-* arrays;
-* objetos;
-* `forEach()`;
-* `find()`;
-* `filter()`;
-* `sort()`;
-* spread operator;
-* operadores lógicos;
-* template literals;
-* manipulação de classes CSS;
-* `localStorage`;
-* JSON;
-* CSS Grid;
-* responsividade;
-* Git;
-* GitHub;
-* organização de projetos.
+---
 
-## Próximos passos
+## 📊 Categorias
 
-O objetivo é continuar evoluindo o CodeTrack até transformá-lo em uma aplicação full stack.
+As tarefas podem ser organizadas nas seguintes categorias:
 
-Algumas ideias para as próximas versões:
+- Frontend
+- Backend
+- Algoritmos
+- Git / GitHub
+- Banco de Dados
+- Outros
 
-1. Melhorar completamente o visual.
-2. Criar um sistema de sequência de dias estudados.
-3. Adicionar categorias de estudo.
-4. Adicionar datas e prazos às tarefas.
-5. Criar gráficos de progresso.
-6. Migrar o frontend para React.
-7. Criar uma API.
-8. Adicionar banco de dados.
-9. Criar autenticação de usuários.
-10. Fazer deploy da aplicação.
+O dashboard também calcula automaticamente o progresso de cada categoria.
 
-## Status
+---
 
-🚧 Projeto em desenvolvimento.
+## ⚠️ Persistência atual
 
-O CodeTrack está sendo construído aos poucos enquanto estudo e pratico programação.
+As tarefas atualmente ficam armazenadas apenas na memória do backend.
+
+Isso significa que:
+
+```text
+Servidor inicia
+      ↓
+Tarefas são criadas
+      ↓
+Servidor é encerrado
+      ↓
+As tarefas são perdidas
+```
+
+Isso será resolvido com a integração do PostgreSQL.
+
+---
+
+## 🗺️ Roadmap
+
+### Banco de dados
+
+- [ ] Instalar PostgreSQL
+- [ ] Criar banco de dados do CodeTrack
+- [ ] Conectar Express ao PostgreSQL
+- [ ] Criar tabela de tarefas
+- [ ] Persistir tarefas
+- [ ] Remover armazenamento em memória
+
+### Backend
+
+- [ ] Separar rotas
+- [ ] Criar controllers
+- [ ] Criar camada de acesso ao banco
+- [ ] Adicionar validação
+- [ ] Melhorar tratamento de erros
+- [ ] Adicionar variáveis de ambiente
+- [ ] Criar arquivo `.env`
+
+### Usuários
+
+- [ ] Cadastro de usuários
+- [ ] Login
+- [ ] Logout
+- [ ] Hash de senhas
+- [ ] Autenticação
+- [ ] Associar tarefas a usuários
+
+### Gamificação
+
+- [ ] Persistir XP
+- [ ] Persistir streak
+- [ ] Histórico de atividades
+- [ ] Sistema de conquistas
+
+### Qualidade
+
+- [ ] Melhorar acessibilidade
+- [ ] Adicionar feedback de carregamento
+- [ ] Adicionar mensagens de sucesso e erro
+- [ ] Confirmar antes de excluir
+- [ ] Adicionar ESLint
+- [ ] Adicionar Prettier
+- [ ] Criar testes
+- [ ] Documentar melhor a API
+
+### Futuro
+
+- [ ] Avaliar migração para React
+- [ ] Deploy do frontend
+- [ ] Deploy do backend
+- [ ] PostgreSQL online
+- [ ] Autenticação em produção
+- [ ] Adicionar link público do projeto
+
+---
+
+## 🧠 O que estou aprendendo
+
+Durante o desenvolvimento do CodeTrack estou praticando:
+
+- HTML
+- CSS
+- Responsividade
+- JavaScript
+- Manipulação do DOM
+- Arrays e objetos
+- Eventos
+- Funções
+- `filter()`
+- `find()`
+- `forEach()`
+- `sort()`
+- Datas em JavaScript
+- JSON
+- LocalStorage
+- Async / Await
+- Fetch API
+- Node.js
+- Express
+- APIs REST
+- Requisições HTTP
+- CRUD
+- Status HTTP
+- CORS
+- npm
+- Git
+- GitHub
+
+---
+
+## 🎯 Objetivo
+
+O objetivo do CodeTrack é evoluir até se tornar uma aplicação Full Stack completa para gerenciamento e acompanhamento de estudos de programação.
+
+Além de ser uma aplicação funcional, o projeto também serve para colocar em prática novos conhecimentos e documentar minha evolução no desenvolvimento de software.
