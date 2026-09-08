@@ -1,5 +1,8 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
+const { Pool } = require("pg");
 
 const app = express();
 const PORT = 3000;
@@ -7,83 +10,228 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
-let tasks = [];
-
-app.get("/api/health", function(req, res) {
-  res.json({
-    status: "ok",
-    message: "CodeTrack API funcionando"
-  });
+const pool = new Pool({
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: Number(process.env.DB_PORT)
 });
 
-app.get("/api/tasks", function(req, res) {
-  res.json(tasks);
-});
+app.get("/api/health", async function(req, res) {
+  try {
+    await pool.query("SELECT 1");
 
-app.post("/api/tasks", function(req, res) {
-  const newTask = {
-    id: Date.now(),
-    name: req.body.name,
-    technology: req.body.technology,
-    category: req.body.category,
-    priority: req.body.priority,
-    dueDate: req.body.dueDate,
-    completed: false,
-    completedAt: null
-  };
+    res.json({
+      status: "ok",
+      message: "CodeTrack API e PostgreSQL funcionando"
+    });
+  } catch (error) {
+    console.error(error);
 
-  tasks.push(newTask);
-
-  res.status(201).json(newTask);
-});
-
-app.put("/api/tasks/:id", function(req, res) {
-  const id = Number(req.params.id);
-
-  const task = tasks.find(function(task) {
-    return task.id === id;
-  });
-
-  if (!task) {
-    return res.status(404).json({
-      message: "Tarefa não encontrada"
+    res.status(500).json({
+      status: "error",
+      message: "Erro ao conectar ao PostgreSQL"
     });
   }
-
-  task.name = req.body.name ?? task.name;
-  task.technology = req.body.technology ?? task.technology;
-  task.category = req.body.category ?? task.category;
-  task.priority = req.body.priority ?? task.priority;
-  task.dueDate = req.body.dueDate ?? task.dueDate;
-  task.completed = req.body.completed ?? task.completed;
-
-  if ("completedAt" in req.body) {
-    task.completedAt = req.body.completedAt;
-  }
-
-  res.json(task);
 });
 
-app.delete("/api/tasks/:id", function(req, res) {
-  const id = Number(req.params.id);
+app.get("/api/tasks", async function(req, res) {
+  try {
+    const result = await pool.query(
+      `
+        SELECT
+          id,
+          name,
+          technology,
+          category,
+          priority,
+          due_date AS "dueDate",
+          completed,
+          completed_at AS "completedAt"
+        FROM tasks
+        ORDER BY id DESC
+      `
+    );
 
-  const taskExists = tasks.some(function(task) {
-    return task.id === id;
-  });
+    res.json(result.rows);
+  } catch (error) {
+    console.error(error);
 
-  if (!taskExists) {
-    return res.status(404).json({
-      message: "Tarefa não encontrada"
+    res.status(500).json({
+      message: "Erro ao buscar tarefas"
     });
   }
+});
 
-  tasks = tasks.filter(function(task) {
-    return task.id !== id;
-  });
+app.post("/api/tasks", async function(req, res) {
+  try {
+    const {
+      name,
+      technology,
+      category,
+      priority,
+      dueDate
+    } = req.body;
 
-  res.status(204).send();
+    const result = await pool.query(
+      `
+        INSERT INTO tasks (
+          name,
+          technology,
+          category,
+          priority,
+          due_date,
+          completed,
+          completed_at
+        )
+        VALUES ($1, $2, $3, $4, $5, FALSE, NULL)
+        RETURNING
+          id,
+          name,
+          technology,
+          category,
+          priority,
+          due_date AS "dueDate",
+          completed,
+          completed_at AS "completedAt"
+      `,
+      [
+        name,
+        technology,
+        category,
+        priority,
+        dueDate || null
+      ]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Erro ao criar tarefa"
+    });
+  }
+});
+
+app.put("/api/tasks/:id", async function(req, res) {
+  try {
+    const id = Number(req.params.id);
+
+    const currentTaskResult = await pool.query(
+      "SELECT * FROM tasks WHERE id = $1",
+      [id]
+    );
+
+    if (currentTaskResult.rows.length === 0) {
+      return res.status(404).json({
+        message: "Tarefa não encontrada"
+      });
+    }
+
+    const currentTask = currentTaskResult.rows[0];
+
+    const name =
+      req.body.name ?? currentTask.name;
+
+    const technology =
+      req.body.technology ?? currentTask.technology;
+
+    const category =
+      req.body.category ?? currentTask.category;
+
+    const priority =
+      req.body.priority ?? currentTask.priority;
+
+    const dueDate =
+      "dueDate" in req.body
+        ? req.body.dueDate || null
+        : currentTask.due_date;
+
+    const completed =
+      req.body.completed ?? currentTask.completed;
+
+    const completedAt =
+      "completedAt" in req.body
+        ? req.body.completedAt
+        : currentTask.completed_at;
+
+    const result = await pool.query(
+      `
+        UPDATE tasks
+        SET
+          name = $1,
+          technology = $2,
+          category = $3,
+          priority = $4,
+          due_date = $5,
+          completed = $6,
+          completed_at = $7
+        WHERE id = $8
+        RETURNING
+          id,
+          name,
+          technology,
+          category,
+          priority,
+          due_date AS "dueDate",
+          completed,
+          completed_at AS "completedAt"
+      `,
+      [
+        name,
+        technology,
+        category,
+        priority,
+        dueDate,
+        completed,
+        completedAt,
+        id
+      ]
+    );
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Erro ao atualizar tarefa"
+    });
+  }
+});
+
+app.delete("/api/tasks/:id", async function(req, res) {
+  try {
+    const id = Number(req.params.id);
+
+    const result = await pool.query(
+      `
+        DELETE FROM tasks
+        WHERE id = $1
+        RETURNING id
+      `,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "Tarefa não encontrada"
+      });
+    }
+
+    res.status(204).send();
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Erro ao excluir tarefa"
+    });
+  }
 });
 
 app.listen(PORT, function() {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
+  console.log(
+    `Servidor rodando em http://localhost:${PORT}`
+  );
 });
